@@ -58,6 +58,81 @@ def api_bairros():
     } for b in bairros])
 
 
+@bp.route('/importar', methods=['GET', 'POST'])
+@login_required
+def importar():
+    if not current_user.is_coordenador():
+        flash('Sem permissão.', 'danger')
+        return redirect(url_for('territorio.index'))
+        
+    if request.method == 'POST':
+        if 'arquivo' not in request.files:
+            flash('Nenhum arquivo selecionado.', 'danger')
+            return redirect(request.url)
+            
+        file = request.files['arquivo']
+        if not file or not file.filename.endswith('.geojson'):
+            flash('Apenas arquivos .geojson são suportados.', 'danger')
+            return redirect(request.url)
+            
+        import json
+        try:
+            data = json.load(file)
+            bairros_criados = 0
+            
+            for feature in data.get('features', []):
+                props = feature.get('properties', {})
+                # Tenta localizar o nome do bairro baseado nas tags comuns do IBGE/Prefeitura Jundiai
+                nome = props.get('name') or props.get('NM_BAIRRO') or props.get('NOME') or props.get('nome') or props.get('bairro')
+                if not nome:
+                    continue
+                    
+                # Se o bairro já existir, ignoramos para não duplicar
+                if Bairro.query.filter_by(nome=nome).first():
+                    continue
+                    
+                geom = feature.get('geometry', {})
+                typ = geom.get('type', '')
+                coords = geom.get('coordinates', [])
+                
+                if not coords:
+                    continue
+                    
+                # Calcula o Centro/Centróide do Polígono
+                lng, lat = 0.0, 0.0
+                try:
+                    pts = []
+                    if typ == 'Polygon':
+                        pts = coords[0]
+                    elif typ == 'MultiPolygon':
+                        pts = coords[0][0]
+                    elif typ == 'Point':
+                        lng, lat = coords[0], coords[1]
+                        
+                    if pts:
+                        lngs = [p[0] for p in pts]
+                        lats = [p[1] for p in pts]
+                        lng = sum(lngs) / len(lngs)
+                        lat = sum(lats) / len(lats)
+                except Exception:
+                    continue
+                    
+                if lat != 0.0 and lng != 0.0:
+                    b = Bairro(nome=nome, latitude=lat, longitude=lng)
+                    db.session.add(b)
+                    bairros_criados += 1
+                    
+            db.session.commit()
+            flash(f'✅ Importação concluída! {bairros_criados} novos bairros adicionados.', 'success')
+            return redirect(url_for('territorio.index'))
+            
+        except Exception as e:
+            flash(f'Erro ao ler arquivo GeoJSON: {str(e)}', 'danger')
+            return redirect(request.url)
+
+    return render_template('territorio/importar.html')
+
+
 @bp.route('/novo', methods=['GET', 'POST'])
 @login_required
 def novo():

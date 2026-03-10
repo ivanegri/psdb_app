@@ -10,7 +10,10 @@
         </a>
     </div>
     {% if current_user.is_coordenador() %}
-    <div class="col-auto">
+    <div class="col-auto d-flex gap-2">
+        <a href="{{ url_for('territorio.importar') }}" class="btn btn-outline-primary btn-sm fw-bold">
+            <i class="bi bi-cloud-upload me-1"></i>Importar Áreas
+        </a>
         <a href="{{ url_for('territorio.novo') }}" class="btn btn-psdb btn-sm">
             <i class="bi bi-plus-lg me-1"></i>Novo Bairro
         </a>
