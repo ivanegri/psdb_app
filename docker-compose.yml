@@ -31,7 +31,7 @@ services:
     volumes:
       - .:/app # hot-reload em dev; em produção use COPY no Dockerfile
     ports:
-      - "5000:5000"
+      - "14545:5000"
 
 volumes:
   postgres_data:
