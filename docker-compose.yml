@@ -1,21 +1,4 @@
 services:
-  # ── Banco de Dados ─────────────────────────────────────────────────────────
-  db:
-    image: postgres:16-alpine
-    container_name: psdb_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: psdb_jundiai
-      POSTGRES_USER: psdb_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-psdb_secure_2026}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U psdb_user -d psdb_jundiai" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # ── Aplicação Flask ────────────────────────────────────────────────────────
   app:
     build: .
@@ -23,15 +6,8 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://psdb_user:${POSTGRES_PASSWORD:-psdb_secure_2026}@db:5432/psdb_jundiai
       FLASK_ENV: ${FLASK_ENV:-production}
-    depends_on:
-      db:
-        condition: service_healthy
     volumes:
       - .:/app # hot-reload em dev; em produção use COPY no Dockerfile
     ports:
       - "14545:5000"
-
-volumes:
-  postgres_data:
