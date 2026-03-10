@@ -1,5 +1,5 @@
 from app import create_app, db
-from app.models import Bairro, Eleitor, Evento
+from app.models import Bairro, Eleitor
 
 app = create_app()
 
@@ -12,13 +12,6 @@ with app.app_context():
         eleitor.bairro_id = None
     if eleitores:
         print(f"{len(eleitores)} eleitores desvinculados dos bairros antigos.")
-
-    # Desvincular relacionamento de eventos
-    eventos = Evento.query.filter(Evento.bairro_id.is_not(None)).all()
-    for evento in eventos:
-        evento.bairro_id = None
-    if eventos:
-        print(f"{len(eventos)} eventos desvinculados dos bairros antigos.")
 
     # Excluir a tabela de bairros
     db.session.commit()
