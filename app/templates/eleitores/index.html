@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Eleitores{% endblock %}
+{% block page_title %}<i class="bi bi-people me-2 text-primary"></i>Cadastro de Eleitores{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+                <input type="text" name="q" value="{{ q }}" class="form-control search-input"
+                    placeholder="🔍 Buscar por nome…">
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="bairro" class="form-select">
+                    <option value="">Todos os bairros</option>
+                    {% for b in bairros %}
+                    <option value="{{ b.id }}" {% if filtro_bairro==b.id %}selected{% endif %}>{{ b.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="classificacao" class="form-select">
+                    <option value="">Classificação</option>
+                    {% for val, label in classificacoes %}
+                    <option value="{{ val }}" {% if filtro_class==val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">Status</option>
+                    {% for val, label in status_list %}
+                    <option value="{{ val }}" {% if filtro_status==val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-psdb w-100">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+                <a href="{{ url_for('eleitores.index') }}" class="btn btn-light">✕</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            <strong>{{ eleitores.total }}</strong> eleitor{{ 'es' if eleitores.total != 1 else '' }} encontrado{{ 's' if
+            eleitores.total != 1 else '' }}
+        </span>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('eleitores.exportar') }}" class="btn btn-sm btn-light">
+                <i class="bi bi-file-earmark-excel me-1"></i>Excel
+            </a>
+            <a href="{{ url_for('eleitores.importar') }}" class="btn btn-sm btn-light">
+                <i class="bi bi-upload me-1"></i>Importar CSV
+            </a>
+            <a href="{{ url_for('eleitores.novo') }}" class="btn btn-sm btn-psdb">
+                <i class="bi bi-plus-lg me-1"></i>Novo Eleitor
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if eleitores.items %}
+        <div class="table-responsive">
+            <table class="table table-modern mb-0">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>Bairro</th>
+                        <th>Classificação</th>
+                        <th>Filiação</th>
+                        <th>Status</th>
+                        <th>Cadastro</th>
+                        <th style="width:100px">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in eleitores.items %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('eleitores.detalhe', id=e.id) }}"
+                                class="fw-semibold text-decoration-none" style="color:#1A2B4A;">
+                                {{ e.nome }}
+                            </a>
+                        </td>
+                        <td style="font-size:13px;">{{ e.telefone or '—' }}</td>
+                        <td style="font-size:13px;">{{ e.bairro.nome if e.bairro else '—' }}</td>
+                        <td>
+                            <span class="badge badge-{{ e.classificacao }} px-2 py-1"
+                                style="font-size:11.5px;border-radius:8px;">
+                                {{ e.classificacao|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ e.filiacao }} px-2 py-1"
+                                style="font-size:11px;border-radius:8px;">
+                                {{ 'Filiado' if e.filiacao == 'filiado' else 'Não Filiado' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ e.status }} px-2 py-1"
+                                style="font-size:11px;border-radius:8px;">
+                                {{ e.status|title }}
+                            </span>
+                        </td>
+                        <td style="font-size:12px;color:#6B7FA3;">
+                            {{ e.criado_em.strftime('%d/%m/%Y') if e.criado_em else '—' }}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('eleitores.detalhe', id=e.id) }}" class="btn btn-sm btn-light"
+                                    title="Ver detalhes">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ url_for('eleitores.editar', id=e.id) }}" class="btn btn-sm btn-light"
+                                    title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if eleitores.pages > 1 %}
+        <div class="d-flex justify-content-center py-3">
+            <nav>
+                <ul class="pagination mb-0">
+                    {% if eleitores.has_prev %}
+                    <li class="page-item"><a class="page-link"
+                            href="{{ url_for('eleitores.index', page=eleitores.prev_num, q=q, bairro=filtro_bairro, classificacao=filtro_class, status=filtro_status) }}">‹</a>
+                    </li>
+                    {% endif %}
+                    {% for num in eleitores.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                    {% if num %}
+                    <li class="page-item {% if num == eleitores.page %}active{% endif %}">
+                        <a class="page-link"
+                            href="{{ url_for('eleitores.index', page=num, q=q, bairro=filtro_bairro, classificacao=filtro_class, status=filtro_status) }}">{{
+                            num }}</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                    {% endfor %}
+                    {% if eleitores.has_next %}
+                    <li class="page-item"><a class="page-link"
+                            href="{{ url_for('eleitores.index', page=eleitores.next_num, q=q, bairro=filtro_bairro, classificacao=filtro_class, status=filtro_status) }}">›</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-people" style="font-size:48px;color:#C5D5E8;"></i>
+            <div class="mt-3 text-muted">
+                {% if q or filtro_bairro or filtro_class or filtro_status %}
+                Nenhum eleitor encontrado com os filtros aplicados.
+                <a href="{{ url_for('eleitores.index') }}">Limpar filtros</a>
+                {% else %}
+                Nenhum eleitor cadastrado ainda.
+                <a href="{{ url_for('eleitores.novo') }}">Cadastrar primeiro eleitor</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

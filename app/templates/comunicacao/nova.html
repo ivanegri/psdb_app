@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Nova Mensagem{% endblock %}
+{% block page_title %}<i class="bi bi-send me-2 text-primary"></i>Enviar Mensagem{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-9">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-chat-square-text me-2"></i>Composição de Mensagem</div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('comunicacao.nova') }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Canal de Envio *</label>
+                            <div class="d-flex gap-2">
+                                <div class="flex-fill">
+                                    <input type="radio" class="btn-check" name="canal" id="canalWA" value="whatsapp"
+                                        checked>
+                                    <label class="btn btn-outline-success w-100" for="canalWA">
+                                        <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                                    </label>
+                                </div>
+                                <div class="flex-fill">
+                                    <input type="radio" class="btn-check" name="canal" id="canalEmail" value="email">
+                                    <label class="btn btn-outline-primary w-100" for="canalEmail">
+                                        <i class="bi bi-envelope me-1"></i>E-mail
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Destinatário *</label>
+                            <select name="destino" class="form-select" id="destinoSelect" onchange="toggleDestino()">
+                                <option value="individual">👤 Eleitor específico</option>
+                                <option value="bairro">🏘️ Bairro específico</option>
+                                <option value="filiados">⭐ Apenas filiados ao PSDB</option>
+                                <option value="todos">📣 Todos os ativos</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12" id="blockEleitor">
+                            <label class="form-label fw-semibold">Selecionar Eleitor</label>
+                            <select name="eleitor_id" class="form-select">
+                                <option value="">— Selecione —</option>
+                                {% for e in eleitores %}
+                                <option value="{{ e.id }}">{{ e.nome }} {% if e.telefone %}({{ e.telefone }}){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12 d-none" id="blockBairro">
+                            <label class="form-label fw-semibold">Selecionar Bairro</label>
+                            <select name="bairro_id" class="form-select">
+                                <option value="">— Selecione —</option>
+                                {% for b in bairros %}
+                                <option value="{{ b.id }}">{{ b.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12" id="blockAssunto">
+                            <label class="form-label fw-semibold">Assunto <small class="text-muted">(para
+                                    e-mail)</small></label>
+                            <input type="text" name="assunto" class="form-control"
+                                placeholder="Ex: Convite para reunião de base">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Mensagem *</label>
+                            <textarea name="mensagem" class="form-control" rows="7" required
+                                placeholder="Digite a mensagem que será enviada…&#10;&#10;Dica: para WhatsApp use *negrito*, _itálico_ e 🎉 emojis!"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-info py-2 px-3" style="font-size:13px;">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Envios em massa podem demorar alguns minutos. Todos os registros ficam salvos no
+                                Histórico.
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex gap-2 justify-content-end">
+                            <a href="{{ url_for('comunicacao.index') }}" class="btn btn-light px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-psdb px-5">
+                                <i class="bi bi-send me-1"></i>Enviar Mensagem
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-2"></i>Histórico Recente</span>
+                <a href="{{ url_for('comunicacao.index') }}" class="btn btn-sm btn-light">Ver todos</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleDestino() {
+        const val = document.getElementById('destinoSelect').value;
+        document.getElementById('blockEleitor').classList.toggle('d-none', val !== 'individual');
+        document.getElementById('blockBairro').classList.toggle('d-none', val !== 'bairro');
+    }
+</script>
+{% endblock %}

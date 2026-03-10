@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Territórios{% endblock %}
+{% block page_title %}<i class="bi bi-geo-alt me-2 text-primary"></i>Territórios e Bairros{% endblock %}
+
+{% block content %}
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <a href="{{ url_for('territorio.mapa') }}" class="btn btn-light btn-sm">
+            <i class="bi bi-map me-1"></i>Ver Mapa
+        </a>
+    </div>
+    {% if current_user.is_coordenador() %}
+    <div class="col-auto">
+        <a href="{{ url_for('territorio.novo') }}" class="btn btn-psdb btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>Novo Bairro
+        </a>
+    </div>
+    {% endif %}
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-modern mb-0">
+            <thead>
+                <tr>
+                    <th>Bairro</th>
+                    <th>Zona Eleitoral</th>
+                    <th>Eleitores</th>
+                    <th>Coordenadas</th>{% if current_user.is_coordenador() %}<th>Ações</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for bairro, total in bairros %}
+                <tr>
+                    <td class="fw-semibold">{{ bairro.nome }}</td>
+                    <td style="font-size:13px;">{{ bairro.zona_eleitoral or '—' }}</td>
+                    <td>
+                        <span class="badge" style="background:#E3F2FD;color:#005BB5;">{{ total }}</span>
+                    </td>
+                    <td style="font-size:12px;color:#6B7FA3;">
+                        {% if bairro.latitude %} {{ '%.4f'|format(bairro.latitude) }}, {{
+                        '%.4f'|format(bairro.longitude) }}
+                        {% else %}—{% endif %}
+                    </td>
+                    {% if current_user.is_coordenador() %}
+                    <td>
+                        <a href="{{ url_for('territorio.editar', id=bairro.id) }}" class="btn btn-sm btn-light">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

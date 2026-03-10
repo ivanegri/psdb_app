@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Mapa Eleitoral{% endblock %}
+{% block page_title %}<i class="bi bi-map me-2 text-primary"></i>Mapa Eleitoral — Jundiaí{% endblock %}
+
+{% block extra_head %}
+{% set gm_key = config.GOOGLE_MAPS_API_KEY %}
+{% if gm_key %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ gm_key }}&libraries=places"></script>
+<script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+{% endif %}
+<style>
+    #mapa {
+        height: 600px;
+        border-radius: 12px;
+        background-color: #e5e3df;
+    }
+
+    .custom-map-popup {
+        font-family: 'Inter', sans-serif;
+        font-size: 13.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-2">
+                <div id="mapa"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="bi bi-info-circle me-2"></i>Legenda</div>
+    <div class="card-body d-flex gap-3 flex-wrap" style="font-size:13px;">
+        <div class="d-flex align-items-center gap-2">
+            <div style="width:14px;height:14px;border-radius:50%;background:#005BB5;"></div>Simpatizante
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div style="width:14px;height:14px;border-radius:50%;background:#2E7D32;"></div>Ativista
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div style="width:14px;height:14px;border-radius:50%;background:#E65100;"></div>Liderança
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div style="width:14px;height:14px;border-radius:50%;background:#C62828;"></div>Candidato
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div style="width:14px;height:14px;border-radius:50%;background:#6A1B9A;"></div>Cabo Eleitoral
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const cores = {
+        simpatizante: '#005BB5', ativista: '#2E7D32',
+        lideranca: '#E65100', candidato: '#C62828', cabo_eleitoral: '#6A1B9A'
+    };
+
+    {% if config.GOOGLE_MAPS_API_KEY %}
+    function initMap() {
+        const jundiaiCenter = { lat: -23.1857, lng: -46.8974 };
+        const mapa = new google.maps.Map(document.getElementById("mapa"), {
+            zoom: 13,
+            center: jundiaiCenter,
+            mapTypeId: 'roadmap',
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true
+        });
+
+        const infoWindow = new google.maps.InfoWindow();
+
+        // Load Bairros (represented as polygons using Turf.js Voronoi)
+        fetch('/territorio/api/bairros').then(r => r.json()).then(bairros => {
+            const bairrosValidos = bairros.filter(b => b.lat != null && b.lng != null);
+            if (bairrosValidos.length === 0) return;
+
+            // Define Jundiaí bounding box [minLng, minLat, maxLng, maxLat]
+            const jundiaiBbox = [-47.05, -23.27, -46.72, -23.09];
+
+            const points = bairrosValidos.map(b => turf.point([parseFloat(b.lng), parseFloat(b.lat)], b));
+            const pointsFc = turf.featureCollection(points);
+            const voronoiPolygons = turf.voronoi(pointsFc, { bbox: jundiaiBbox });
+
+            voronoiPolygons.features.forEach((poly, index) => {
+                if (!poly) return; // if turf failed to create for this point
+
+                // Get the original bairro data from points via the Turf.js index logic
+                const innerBairro = pointsFc.features[index].properties;
+                const totalText = innerBairro.total || 0;
+
+                // Color based on density or presence of eleitores
+                const fillColor = totalText > 0 ? '#1976D2' : '#6B7FA3';
+                const fillOpacity = totalText > 0 ? Math.min(0.2 + (totalText * 0.05), 0.6) : 0.05;
+
+                // Convert turf polygon coordinates to Google Maps paths
+                const paths = poly.geometry.coordinates[0].map(c => ({ lng: c[0], lat: c[1] }));
+
+                const googlePoly = new google.maps.Polygon({
+                    paths: paths,
+                    strokeColor: "#005BB5",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 1,
+                    fillColor: fillColor,
+                    fillOpacity: fillOpacity,
+                    map: mapa
+                });
+
+                // Interaction
+                googlePoly.addListener('mouseover', function (ev) {
+                    googlePoly.setOptions({ fillOpacity: fillOpacity + 0.2 });
+                });
+                googlePoly.addListener('mouseout', function (ev) {
+                    googlePoly.setOptions({ fillOpacity: fillOpacity });
+                });
+                googlePoly.addListener('click', function (ev) {
+                    infoWindow.setPosition(ev.latLng);
+                    infoWindow.setContent(`<div class="custom-map-popup"><strong>${innerBairro.nome}</strong><br>${totalText} eleitores</div>`);
+                    infoWindow.open(mapa);
+                });
+            });
+        });
+
+        // Load Eleitores (represented as custom markers)
+        fetch('/territorio/api/eleitores-geo').then(r => r.json()).then(geo => {
+            geo.features.forEach(f => {
+                if (!f.geometry || !f.geometry.coordinates) return;
+                const [lng, lat] = f.geometry.coordinates;
+                const p = f.properties;
+                const cor = cores[p.classificacao] || '#005BB5';
+
+                // Use a custom SVG for dots instead of default map pins
+                const svgMarker = {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: cor,
+                    fillOpacity: 0.9,
+                    strokeWeight: 1,
+                    strokeColor: '#fff',
+                    rotation: 0,
+                    scale: 6,
+                };
+
+                const marker = new google.maps.Marker({
+                    position: { lat: parseFloat(lat), lng: parseFloat(lng) },
+                    map: mapa,
+                    icon: svgMarker,
+                    title: p.nome
+                });
+
+                marker.addListener("click", () => {
+                    const contentString = `
+                        <div class="custom-map-popup">
+                            <strong>${p.nome}</strong><br>
+                            ${p.bairro}<br>
+                            <span style="color:${cor};">${p.classificacao}</span><br>
+                            <a href="/eleitores/${p.id}" target="_blank">Ver perfil →</a>
+                        </div>`;
+                    infoWindow.setContent(contentString);
+                    infoWindow.open(mapa, marker);
+                });
+            });
+        });
+    }
+
+    // Initialize map on window load
+    window.onload = initMap;
+    {% else %}
+    document.getElementById('mapa').innerHTML = `
+        <div class="d-flex align-items-center justify-content-center h-100 flex-column text-muted">
+            <i class="bi bi-map fs-1 mb-2"></i>
+            <h5>Mapa Indisponível</h5>
+            <p>Por favor, configure a chave API do Google Maps nas Configurações da Administração.</p>
+        </div>
+    `;
+    {% endif %}
+</script>
+{% endblock %}

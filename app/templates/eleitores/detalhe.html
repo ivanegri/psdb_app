@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}{{ eleitor.nome }}{% endblock %}
+{% block page_title %}<i class="bi bi-person-circle me-2 text-primary"></i>Perfil do Eleitor{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <!-- Card principal -->
+    <div class="col-lg-4">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <div class="mx-auto mb-3"
+                    style="width:80px;height:80px;background:linear-gradient(135deg,#005BB5,#1976D2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:white;">
+                    {{ eleitor.nome[0].upper() }}
+                </div>
+                <h5 class="fw-bold mb-1">{{ eleitor.nome }}</h5>
+                <div class="mb-3 d-flex justify-content-center gap-2">
+                    <span class="badge badge-{{ eleitor.classificacao }} px-3 py-1"
+                        style="font-size:12px;border-radius:8px;">
+                        {{ eleitor.classificacao|replace('_', ' ')|title }}
+                    </span>
+                    <span class="badge badge-{{ eleitor.status }} px-3 py-1" style="font-size:12px;border-radius:8px;">
+                        {{ eleitor.status|title }}
+                    </span>
+                </div>
+                <div class="mb-2">
+                    <span class="badge badge-{{ eleitor.filiacao }} px-3 py-1"
+                        style="font-size:12px;border-radius:8px;">
+                        <i class="bi bi-award me-1"></i>{{ 'Filiado ao PSDB' if eleitor.filiacao == 'filiado' else 'Não
+                        Filiado' }}
+                    </span>
+                </div>
+
+                <hr>
+                <div class="text-start" style="font-size:14px;">
+                    {% if eleitor.telefone %}
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-whatsapp text-success"></i>
+                        <span>{{ eleitor.telefone }}</span>
+                        <a href="https://wa.me/55{{ eleitor.telefone|replace('(','') |replace(')','') |replace(' ','') |replace('-','') }}"
+                            target="_blank" class="ms-auto btn btn-sm badge"
+                            style="background:#E8F5E9;color:#2E7D32;">Chat</a>
+                    </div>
+                    {% endif %}
+                    {% if eleitor.email %}
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-envelope text-primary"></i>
+                        <span style="font-size:12px;word-break:break-all;">{{ eleitor.email }}</span>
+                    </div>
+                    {% endif %}
+                    {% if eleitor.bairro %}
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-geo-alt text-danger"></i>
+                        <span>{{ eleitor.bairro.nome }}</span>
+                    </div>
+                    {% endif %}
+                    {% if eleitor.titulo_numero %}
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-card-text text-secondary"></i>
+                        <span style="font-size:12px;">Título: {{ eleitor.titulo_numero }}</span>
+                    </div>
+                    {% endif %}
+                    {% if eleitor.idade %}
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-cake text-warning"></i>
+                        <span>{{ eleitor.idade }} anos</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <hr>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{{ url_for('eleitores.editar', id=eleitor.id) }}" class="btn btn-psdb btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Editar
+                    </a>
+                    <a href="{{ url_for('comunicacao.nova') }}?destino=individual&eleitor_id={{ eleitor.id }}"
+                        class="btn btn-sm btn-light">
+                        <i class="bi bi-send me-1"></i>Mensagem
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% if eleitor.observacoes %}
+        <div class="card mt-3">
+            <div class="card-header"><i class="bi bi-sticky me-2"></i>Observações</div>
+            <div class="card-body" style="font-size:13.5px;color:#4A5568;">{{ eleitor.observacoes }}</div>
+        </div>
+        {% endif %}
+
+        {% if eleitor.ponto_focal %}
+        <div class="card mt-3">
+            <div class="card-header"><i class="bi bi-person-lines-fill me-2"></i>Ponto Focal</div>
+            <div class="card-body">
+                <a href="{{ url_for('eleitores.detalhe', id=eleitor.ponto_focal.id) }}"
+                    class="text-decoration-none fw-semibold" style="color:#005BB5;">
+                    {{ eleitor.ponto_focal.nome }}
+                </a>
+                <div style="font-size:12px;color:#6B7FA3;">{{ eleitor.ponto_focal.bairro.nome if
+                    eleitor.ponto_focal.bairro else '' }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Histórico -->
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-2"></i>Histórico de Ações</span>
+                <a href="{{ url_for('acoes.nova') }}" class="btn btn-sm btn-psdb">
+                    <i class="bi bi-plus-lg me-1"></i>Registrar
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if acoes %}
+                <table class="table table-modern mb-0">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Por</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in acoes %}
+                        <tr>
+                            <td><span class="badge bg-light text-dark border" style="font-size:11px;">{{ a.tipo|title
+                                    }}</span></td>
+                            <td
+                                style="font-size:13px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                {{ a.descricao or '—' }}</td>
+                            <td style="font-size:12px;">{{ a.responsavel.nome.split()[0] if a.responsavel else '—' }}
+                            </td>
+                            <td style="font-size:12px;color:#6B7FA3;">{{ a.data.strftime('%d/%m/%y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4" style="font-size:13px;">Nenhuma ação registrada ainda.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-chat-square-dots me-2"></i>Histórico de Comunicações</div>
+            <div class="card-body p-0">
+                {% if comunicacoes %}
+                <table class="table table-modern mb-0">
+                    <thead>
+                        <tr>
+                            <th>Canal</th>
+                            <th>Assunto</th>
+                            <th>Status</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in comunicacoes %}
+                        <tr>
+                            <td>
+                                {% if c.canal == 'whatsapp' %}
+                                <span class="badge" style="background:#E8F5E9;color:#2E7D32;"><i
+                                        class="bi bi-whatsapp me-1"></i>WhatsApp</span>
+                                {% else %}
+                                <span class="badge" style="background:#E3F2FD;color:#1565C0;"><i
+                                        class="bi bi-envelope me-1"></i>E-mail</span>
+                                {% endif %}
+                            </td>
+                            <td
+                                style="font-size:13px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                {{ c.assunto or '(sem assunto)' }}</td>
+                            <td>
+                                <span
+                                    class="badge {% if c.status == 'enviado' %}bg-success{% elif c.status == 'erro' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                    {{ c.status|title }}
+                                </span>
+                            </td>
+                            <td style="font-size:12px;color:#6B7FA3;">{{ c.enviado_em.strftime('%d/%m/%y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4" style="font-size:13px;">Nenhuma mensagem enviada ainda.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

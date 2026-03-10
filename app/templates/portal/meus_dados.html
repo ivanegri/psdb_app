@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Meus Dados{% endblock %}
+{% block page_title %}<i class="bi bi-person-lines-fill me-2 text-primary"></i>Atualização Cadastral{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <form method="POST" action="{{ url_for('portal.meus_dados') }}">
+            <div class="card" style="border-radius:12px;">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Informe seus dados para contato</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Telefone/WhatsApp</label>
+                            <input type="text" name="telefone" class="form-control" value="{{ eleitor.telefone or '' }}"
+                                placeholder="(11) 90000-0000">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Bairro</label>
+                            <select name="bairro_id" class="form-select">
+                                <option value="">Selecione o Bairro</option>
+                                {% for b in bairros %}
+                                <option value="{{ b.id }}" {% if eleitor and eleitor.bairro_id==b.id %}selected{% endif
+                                    %}>
+                                    {{ b.nome }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Logradouro (Rua, Av, etc)</label>
+                            <input type="text" name="endereco" class="form-control" value="{{ eleitor.endereco or '' }}"
+                                placeholder="Endereço Completo">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-end py-3">
+                    <button type="submit" class="btn btn-psdb w-100">Atualizar Cadastro</button>
+                    <a href="{{ url_for('portal.index') }}"
+                        class="btn btn-link text-muted mt-2 d-block text-decoration-none">Voltar ao painel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

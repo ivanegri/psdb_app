@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Agenda{% endblock %}
+{% block page_title %}<i class="bi bi-calendar3 me-2 text-primary"></i>Agenda de Eventos{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/pt-br.global.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-12 d-flex justify-content-end mb-1">
+        {% if not current_user.is_eleitor() %}
+        <a href="{{ url_for('agenda.novo') }}" class="btn btn-psdb">
+            <i class="bi bi-plus-lg me-1"></i>Novo Evento
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body" style="padding:20px;">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal detalhe evento -->
+<div class="modal fade" id="eventoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:16px;border:none;">
+            <div class="modal-header"
+                style="background:linear-gradient(135deg,#005BB5,#1976D2);color:white;border-radius:16px 16px 0 0;">
+                <h5 class="modal-title fw-bold" id="modalTitulo">Evento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <a id="modalDetailLink" href="#" class="btn btn-psdb btn-sm">
+                    <i class="bi bi-eye me-1"></i>Acessar Detalhes
+                </a>
+                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const calendarEl = document.getElementById('calendar');
+    const modal = new bootstrap.Modal(document.getElementById('eventoModal'));
+
+    const tiposLabel = {
+        reuniao_base: '🏠 Reunião de Base',
+        visita_domiciliar: '🚪 Visita Domiciliar',
+        evento_publico: '🎤 Evento Público',
+        treinamento: '📚 Treinamento',
+        outro: '📌 Outro',
+    };
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'pt-br',
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        events: '/agenda/api/eventos',
+        eventClick: function (info) {
+            const p = info.event.extendedProps;
+            document.getElementById('modalTitulo').textContent = info.event.title;
+            document.getElementById('modalDetailLink').href = `/agenda/${info.event.id}`;
+            const inicio = info.event.start ? info.event.start.toLocaleString('pt-BR') : '';
+            const fim = info.event.end ? info.event.end.toLocaleString('pt-BR') : '';
+            document.getElementById('modalBody').innerHTML = `
+      <div class="mb-3"><span class="badge px-3 py-2" style="background:#E3F2FD;color:#005BB5;font-size:13px;">${tiposLabel[p.tipo] || p.tipo}</span></div>
+      ${p.descricao ? `<p style="font-size:14px;">${p.descricao}</p>` : ''}
+      <div class="row g-2" style="font-size:13.5px;">
+        <div class="col-6"><i class="bi bi-clock me-1 text-muted"></i><strong>Início:</strong><br>${inicio}</div>
+        ${fim ? `<div class="col-6"><i class="bi bi-clock-history me-1 text-muted"></i><strong>Fim:</strong><br>${fim}</div>` : ''}
+        ${p.local ? `<div class="col-12 mt-2"><i class="bi bi-pin-map me-1 text-muted"></i><strong>Local:</strong> ${p.local}</div>` : ''}
+      </div>
+    `;
+            modal.show();
+        },
+        eventDidMount: function (info) {
+            info.el.style.borderRadius = '6px';
+            info.el.style.fontSize = '12.5px';
+            info.el.style.padding = '2px 6px';
+        }
+    });
+    calendar.render();
+</script>
+{% endblock %}

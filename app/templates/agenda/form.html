@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if evento else 'Novo' }} Evento{% endblock %}
+{% block page_title %}<i class="bi bi-calendar-plus me-2 text-primary"></i>{{ 'Editar' if evento else 'Novo' }} Evento{%
+endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST"
+                    action="{{ url_for('agenda.editar', id=evento.id) if evento else url_for('agenda.novo') }}">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Título do Evento *</label>
+                            <input type="text" name="titulo" class="form-control" required
+                                value="{{ evento.titulo if evento else '' }}"
+                                placeholder="Ex: Reunião de Base - Centro">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Tipo</label>
+                            <select name="tipo" class="form-select">
+                                {% for val, label in tipos %}
+                                <option value="{{ val }}" {% if evento and evento.tipo==val %}selected{% endif %}>{{
+                                    label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Início *</label>
+                            <input type="datetime-local" name="data_inicio" class="form-control" required
+                                value="{{ evento.data_inicio.strftime('%Y-%m-%dT%H:%M') if evento else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Fim</label>
+                            <input type="datetime-local" name="data_fim" class="form-control"
+                                value="{{ evento.data_fim.strftime('%Y-%m-%dT%H:%M') if evento and evento.data_fim else '' }}">
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label fw-semibold">Local</label>
+                            <input type="text" name="local" class="form-control"
+                                value="{{ evento.local if evento else '' }}" placeholder="Endereço ou nome do local">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Cor</label>
+                            <input type="color" name="cor" class="form-control form-control-color w-100"
+                                value="{{ evento.cor if evento else '#005BB5' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Descrição</label>
+                            <textarea name="descricao" class="form-control" rows="3"
+                                placeholder="Detalhes sobre o evento…">{{ evento.descricao if evento else '' }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Participantes</label>
+                            <select name="participantes" class="form-select" multiple style="height:160px;">
+                                {% for e in eleitores %}
+                                <option value="{{ e.id }}" {% if evento and e in evento.participantes.all() %}selected{%
+                                    endif %}>
+                                    {{ e.nome }} {% if e.bairro %}({{ e.bairro.nome }}){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Segure Ctrl / Cmd para selecionar múltiplos</small>
+                        </div>
+                        <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+                            <a href="{{ url_for('agenda.index') }}" class="btn btn-light px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-psdb px-5">
+                                <i class="bi bi-check-lg me-1"></i>{{ 'Salvar' if evento else 'Criar Evento' }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

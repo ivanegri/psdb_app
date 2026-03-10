@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Importar Eleitores{% endblock %}
+{% block page_title %}<i class="bi bi-upload me-2 text-primary"></i>Importar Eleitores via CSV{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-file-earmark-arrow-up me-2"></i>Upload do Arquivo CSV</div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" action="{{ url_for('eleitores.importar') }}">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Arquivo CSV *</label>
+                        <input type="file" name="arquivo" class="form-control" accept=".csv" required>
+                        <div class="form-text">Codificação UTF-8. Tamanho máximo recomendado: 10MB.</div>
+                    </div>
+                    <div class="alert alert-info py-2" style="font-size:13px;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Baixe o <a href="{{ url_for('eleitores.modelo_csv') }}" class="fw-semibold">modelo CSV</a> para
+                        copiar o formato correto de colunas.
+                    </div>
+                    <div class="d-flex gap-2 justify-content-end mt-3">
+                        <a href="{{ url_for('eleitores.index') }}" class="btn btn-light px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-psdb px-5">
+                            <i class="bi bi-cloud-upload me-1"></i>Importar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-table me-2"></i>Colunas Esperadas</div>
+            <div class="card-body p-0">
+                <table class="table table-modern mb-0">
+                    <thead>
+                        <tr>
+                            <th>Coluna</th>
+                            <th>Obrigatória</th>
+                            <th>Exemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in [
+                        ('nome','✅ Sim','João da Silva'),
+                        ('telefone','—','(11) 98765-4321'),
+                        ('email','—','joao@email.com'),
+                        ('nascimento','—','15/03/1985'),
+                        ('cpf','—','000.000.000-00'),
+                        ('bairro','—','Centro'),
+                        ('zona_eleitoral','—','001'),
+                        ('secao_eleitoral','—','0001'),
+                        ('titulo_numero','—','1234567890'),
+                        ('titulo_zona','—','001'),
+                        ('titulo_secao','—','0001'),
+                        ('classificacao','—','simpatizante'),
+                        ('filiacao','—','nao_filiado'),
+                        ] %}
+                        <tr>
+                            <td><code>{{ row[0] }}</code></td>
+                            <td style="font-size:12px;">{{ row[1] }}</td>
+                            <td style="font-size:12px;color:#6B7FA3;">{{ row[2] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

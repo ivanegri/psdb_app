@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if eleitor else 'Novo' }} Eleitor{% endblock %}
+{% block page_title %}
+<i class="bi bi-person-{{ 'pencil' if eleitor else 'plus' }} me-2 text-primary"></i>
+{{ 'Editar Eleitor' if eleitor else 'Novo Eleitor' }}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <form method="POST"
+            action="{{ url_for('eleitores.editar', id=eleitor.id) if eleitor else url_for('eleitores.novo') }}">
+            <div class="row g-3">
+
+                <!-- Dados pessoais -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-person me-2"></i>Dados Pessoais</div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Nome Completo *</label>
+                                    <input type="text" name="nome" class="form-control" required
+                                        value="{{ eleitor.nome if eleitor else '' }}" placeholder="Ex: João da Silva">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Telefone / WhatsApp</label>
+                                    <input type="text" name="telefone" class="form-control"
+                                        value="{{ eleitor.telefone if eleitor else '' }}" placeholder="(11) 98765-4321">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Data de Nascimento</label>
+                                    <input type="date" name="nascimento" class="form-control"
+                                        value="{{ eleitor.nascimento.strftime('%Y-%m-%d') if eleitor and eleitor.nascimento else '' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">E-mail</label>
+                                    <input type="email" name="email" class="form-control"
+                                        value="{{ eleitor.email if eleitor else '' }}" placeholder="joao@exemplo.com">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">CPF <small
+                                            class="text-muted">(criptografado)</small></label>
+                                    <input type="text" name="cpf" class="form-control"
+                                        value="{{ eleitor.cpf if eleitor and eleitor.cpf else '' }}"
+                                        placeholder="000.000.000-00">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Gênero</label>
+                                    <select name="genero" class="form-select">
+                                        <option value="">Prefiro não informar</option>
+                                        <option value="masculino" {% if eleitor and eleitor.genero=='masculino'
+                                            %}selected{% endif %}>Masculino</option>
+                                        <option value="feminino" {% if eleitor and eleitor.genero=='feminino'
+                                            %}selected{% endif %}>Feminino</option>
+                                        <option value="outro" {% if eleitor and eleitor.genero=='outro' %}selected{%
+                                            endif %}>Outro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Título de eleitor -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-card-text me-2"></i>Título de Eleitor <small
+                                class="text-muted ms-1">(para integração futura com TSE/TRE)</small></div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <label class="form-label fw-semibold">Número do Título</label>
+                                    <input type="text" name="titulo_numero" class="form-control"
+                                        value="{{ eleitor.titulo_numero if eleitor else '' }}"
+                                        placeholder="0000000000000">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Zona Eleitoral</label>
+                                    <input type="text" name="titulo_zona" class="form-control"
+                                        value="{{ eleitor.titulo_zona if eleitor else '' }}" placeholder="001">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Seção Eleitoral</label>
+                                    <input type="text" name="titulo_secao" class="form-control"
+                                        value="{{ eleitor.titulo_secao if eleitor else '' }}" placeholder="0001">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Território -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-geo-alt me-2"></i>Território</div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <label class="form-label fw-semibold">Bairro</label>
+                                    <select name="bairro_id" class="form-select">
+                                        <option value="">Selecione o bairro</option>
+                                        {% for b in bairros %}
+                                        <option value="{{ b.id }}" {% if eleitor and eleitor.bairro_id==b.id
+                                            %}selected{% endif %}>{{ b.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-7">
+                                    <label class="form-label fw-semibold">Endereço</label>
+                                    <input type="text" id="endereco" name="endereco" class="form-control"
+                                        value="{{ eleitor.endereco if eleitor else '' }}"
+                                        placeholder="Rua, número, complemento (Busque no Google Maps)">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Zona Eleitoral</label>
+                                    <input type="text" name="zona_eleitoral" class="form-control"
+                                        value="{{ eleitor.zona_eleitoral if eleitor else '' }}" placeholder="001">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Seção Eleitoral</label>
+                                    <input type="text" name="secao_eleitoral" class="form-control"
+                                        value="{{ eleitor.secao_eleitoral if eleitor else '' }}" placeholder="0001">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Ponto Focal / Liderança Responsável</label>
+                                    <select name="ponto_focal_id" class="form-select">
+                                        <option value="">Nenhum</option>
+                                        {% for l in liderancas %}
+                                        <option value="{{ l.id }}" {% if eleitor and eleitor.ponto_focal_id==l.id
+                                            %}selected{% endif %}>{{ l.nome }} ({{ l.bairro.nome if l.bairro else 'sem
+                                            bairro' }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Classificação política -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-star me-2"></i>Classificação Política</div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Classificação</label>
+                                    <select name="classificacao" class="form-select">
+                                        {% for val, label in classificacoes %}
+                                        <option value="{{ val }}" {% if eleitor and eleitor.classificacao==val
+                                            %}selected{% elif not eleitor and val=='simpatizante' %}selected{% endif %}>
+                                            {{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Status</label>
+                                    <select name="status" class="form-select">
+                                        {% for val, label in status_list %}
+                                        <option value="{{ val }}" {% if eleitor and eleitor.status==val %}selected{%
+                                            elif not eleitor and val=='ativo' %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Filiação ao PSDB</label>
+                                    <select name="filiacao" class="form-select">
+                                        {% for val, label in filiacoes %}
+                                        <option value="{{ val }}" {% if eleitor and eleitor.filiacao==val %}selected{%
+                                            elif not eleitor and val=='nao_filiado' %}selected{% endif %}>{{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Observações</label>
+                                    <textarea name="observacoes" class="form-control" rows="3"
+                                        placeholder="Informações adicionais sobre este eleitor…">{{ eleitor.observacoes if eleitor else '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex gap-2 justify-content-end pb-3">
+                    <a href="{{ url_for('eleitores.index') }}" class="btn btn-light px-4">Cancelar</a>
+                    <button type="submit" class="btn btn-psdb px-5">
+                        <i class="bi bi-check-lg me-1"></i>
+                        {{ 'Salvar Alterações' if eleitor else 'Cadastrar Eleitor' }}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% set gm_key = config.GOOGLE_MAPS_API_KEY %}
+{% if gm_key %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ gm_key }}&libraries=places"></script>
+<script>
+    function normalizeString(str) {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    }
+
+    function initAutocomplete() {
+        const input = document.getElementById('endereco');
+        if (!input) return;
+
+        const bairroSelect = document.querySelector('select[name="bairro_id"]');
+
+        const options = {
+            componentRestrictions: { country: "br" },
+            fields: ["address_components", "name", "formatted_address"],
+            // Allowing any address types
+        };
+
+        const autocomplete = new google.maps.places.Autocomplete(input, options);
+
+        autocomplete.addListener('place_changed', function () {
+            const place = autocomplete.getPlace();
+            if (!place.address_components) return;
+
+            let neighborhood = '';
+            for (const component of place.address_components) {
+                const types = component.types;
+                if (types.includes('sublocality') || types.includes('neighborhood') || types.includes('sublocality_level_1')) {
+                    neighborhood = component.long_name;
+                    break;
+                }
+            }
+
+            // Set the full formatted address
+            if (place.formatted_address) {
+                input.value = place.formatted_address;
+            }
+
+            // Try to match the neighborhood with the select dropdown automatically
+            if (neighborhood && bairroSelect) {
+                const searchName = normalizeString(neighborhood);
+                let found = false;
+
+                for (let i = 0; i < bairroSelect.options.length; i++) {
+                    const opt = bairroSelect.options[i];
+                    if (!opt.value) continue;
+
+                    const optName = normalizeString(opt.text);
+                    if (optName === searchName || optName.includes(searchName) || searchName.includes(optName)) {
+                        bairroSelect.selectedIndex = i;
+                        found = true;
+
+                        // Briefly highlight to show the user it was auto-selected
+                        bairroSelect.style.borderColor = "#2E7D32";
+                        bairroSelect.style.boxShadow = "0 0 0 4px rgba(46,125,50,0.1)";
+                        setTimeout(() => {
+                            bairroSelect.style.borderColor = "";
+                            bairroSelect.style.boxShadow = "";
+                        }, 1500);
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    console.warn("Bairro from Google not found in local list:", neighborhood);
+                }
+            }
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && document.querySelector('.pac-container')) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    window.addEventListener('load', initAutocomplete);
+</script>
+{% endif %}
+{% endblock %}

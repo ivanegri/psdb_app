@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Fale Conosco{% endblock %}
+{% block page_title %}<i class="bi bi-chat-dots me-2 text-primary"></i>Enviar Mensagem{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <form method="POST" action="{{ url_for('portal.mensagem') }}">
+            <div class="card" style="border-radius:12px;">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Mande uma sugestão, pedido ou mensagem</h5>
+                    <p class="text-muted small mb-0 mt-1">Sua mensagem chegará diretamente à equipe.</p>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Destinatário</label>
+                            <select name="candidato_id" class="form-select text-dark">
+                                <option value="">Equipe Geral Jundiaí (Canal Aberto)</option>
+                                {% for cand in candidatos %}
+                                <option value="{{ cand.id }}">{{ cand.nome }} ({{ cand.classificacao|title }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Assunto Principal</label>
+                            <input type="text" name="assunto" class="form-control" placeholder="Do que se trata?"
+                                required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Sua Mensagem</label>
+                            <textarea name="mensagem" class="form-control" rows="5"
+                                placeholder="Escreva sua solicitação com detalhes aqui..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-end py-3">
+                    <button type="submit" class="btn btn-warning fw-bold w-100">
+                        <i class="bi bi-send-fill me-2"></i>Enviar Mensagem à Liderança
+                    </button>
+                    <a href="{{ url_for('portal.index') }}"
+                        class="btn btn-link text-muted mt-2 d-block text-decoration-none">Cancelar e Voltar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

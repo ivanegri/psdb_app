@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PSDB Jundiaí – Sistema de Gestão Eleitoral">
+  <title>{% block title %}PSDB Jundiaí{% endblock %} | PSDB Jundiaí</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --psdb-blue: #005BB5;
+      --psdb-blue-dark: #00408A;
+      --psdb-blue-light: #1976D2;
+      --psdb-accent: #FFB800;
+      --sidebar-width: 260px;
+      --sidebar-bg: #0A1628;
+      --sidebar-hover: rgba(255, 255, 255, 0.08);
+      --card-radius: 16px;
+      --transition: all 0.2s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F0F4F8;
+      color: #1A2B4A;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      min-height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      overflow: hidden;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .sidebar-logo .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--psdb-blue), var(--psdb-blue-light));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: white;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(0, 91, 181, 0.4);
+    }
+
+    .logo-text {
+      color: white;
+    }
+
+    .logo-text .logo-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .logo-text .logo-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.45);
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 0;
+      overflow-y: auto;
+    }
+
+    .nav-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.3);
+      padding: 16px 20px 6px;
+    }
+
+    .sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 13.5px;
+      font-weight: 500;
+      border-radius: 0;
+      transition: var(--transition);
+      text-decoration: none;
+      margin: 1px 8px;
+      border-radius: 10px;
+    }
+
+    .sidebar .nav-link:hover {
+      color: white;
+      background: var(--sidebar-hover);
+    }
+
+    .sidebar .nav-link.active {
+      color: white;
+      background: linear-gradient(90deg, rgba(0, 91, 181, 0.6), rgba(0, 91, 181, 0.2));
+      border-left: 3px solid var(--psdb-blue-light);
+    }
+
+    .sidebar .nav-link .bi {
+      font-size: 17px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      padding: 14px 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .sidebar-footer .nav-link {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* ── Main content ────────────────────────────────────────── */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: white;
+      padding: 0 28px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #E5ECF5;
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .page-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1A2B4A;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 28px;
+    }
+
+    /* ── Cards ───────────────────────────────────────────────── */
+    .card {
+      border: none;
+      border-radius: var(--card-radius);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+    }
+
+    .card-header {
+      background: transparent;
+      border-bottom: 1px solid #EEF3FA;
+      padding: 18px 22px 14px;
+      font-weight: 600;
+    }
+
+    .card-body {
+      padding: 22px;
+    }
+
+    /* ── KPI Cards ───────────────────────────────────────────── */
+    .kpi-card {
+      background: white;
+      border-radius: var(--card-radius);
+      padding: 22px;
+      border: 1px solid #EEF3FA;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 91, 181, 0.1);
+    }
+
+    .kpi-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 14px;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1A2B4A;
+      line-height: 1;
+    }
+
+    .kpi-label {
+      font-size: 13px;
+      color: #6B7FA3;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn-psdb {
+      background: linear-gradient(135deg, var(--psdb-blue), var(--psdb-blue-light));
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 10px;
+      transition: var(--transition);
+    }
+
+    .btn-psdb:hover {
+      background: linear-gradient(135deg, var(--psdb-blue-dark), var(--psdb-blue));
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 91, 181, 0.35);
+    }
+
+    /* ── Badges ──────────────────────────────────────────────── */
+    .badge-simpatizante {
+      background: #E8F4FD;
+      color: #1976D2;
+    }
+
+    .badge-ativista {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .badge-lideranca {
+      background: #FFF3E0;
+      color: #E65100;
+    }
+
+    .badge-candidato {
+      background: #FCE4EC;
+      color: #C62828;
+    }
+
+    .badge-cabo_eleitoral {
+      background: #F3E5F5;
+      color: #6A1B9A;
+    }
+
+    .badge-filiado {
+      background: #E3F2FD;
+      color: #005BB5;
+      font-weight: 600;
+    }
+
+    .badge-nao_filiado {
+      background: #F5F5F5;
+      color: #757575;
+    }
+
+    .badge-ativo {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .badge-inativo {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .badge-convertido {
+      background: #FFF9C4;
+      color: #F57F17;
+    }
+
+    /* ── Tables ──────────────────────────────────────────────── */
+    .table-modern {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table-modern thead th {
+      background: #F7FAFF;
+      color: #6B7FA3;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 12px 16px;
+      border-bottom: 2px solid #EEF3FA;
+    }
+
+    .table-modern tbody tr {
+      transition: var(--transition);
+      border-bottom: 1px solid #F0F4F8;
+    }
+
+    .table-modern tbody tr:hover {
+      background: #F7FAFF;
+    }
+
+    .table-modern td {
+      padding: 12px 16px;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    /* ── Search bar ──────────────────────────────────────────── */
+    .search-input {
+      border: 2px solid #EEF3FA;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      border-color: var(--psdb-blue);
+      box-shadow: 0 0 0 4px rgba(0, 91, 181, 0.1);
+      outline: none;
+    }
+
+    /* ── Alerts ──────────────────────────────────────────────── */
+    .alert {
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .alert-success {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .alert-danger {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .alert-warning {
+      background: #FFF8E1;
+      color: #F57F17;
+    }
+
+    .alert-info {
+      background: #E3F2FD;
+      color: #1565C0;
+    }
+
+    /* ── Forms ───────────────────────────────────────────────── */
+    .form-control,
+    .form-select {
+      border: 2px solid #EEF3FA;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--psdb-blue);
+      box-shadow: 0 0 0 4px rgba(0, 91, 181, 0.1);
+    }
+
+    /* ── Pagination ──────────────────────────────────────────── */
+    .pagination .page-link {
+      border: 2px solid #EEF3FA;
+      color: var(--psdb-blue);
+      border-radius: 8px !important;
+      margin: 0 2px;
+      font-weight: 500;
+    }
+
+    .pagination .page-item.active .page-link {
+      background: var(--psdb-blue);
+      border-color: var(--psdb-blue);
+    }
+
+    /* ── Mobile ──────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-wrapper {
+        margin-left: 0;
+      }
+
+      .main-content {
+        padding: 16px;
+      }
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+  {% if current_user.is_authenticated %}
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="mainSidebar">
+    <div class="sidebar-logo">
+      <div class="logo-badge">
+        <div class="logo-icon">P</div>
+        <div class="logo-text">
+          <div class="logo-title">PSDB Jundiaí</div>
+          <div class="logo-sub">Gestão Eleitoral</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      {% if not current_user.is_eleitor() %}
+      <div class="nav-section-title">Principal</div>
+      <a href="{{ url_for('dashboard.index') }}"
+        class="nav-link {% if request.endpoint and request.endpoint.startswith('dashboard') %}active{% endif %}">
+        <i class="bi bi-grid-1x2"></i> Dashboard
+      </a>
+
+      <div class="nav-section-title">Eleitores</div>
+      <a href="{{ url_for('eleitores.index') }}"
+        class="nav-link {% if request.endpoint and request.endpoint.startswith('eleitores') %}active{% endif %}">
+        <i class="bi bi-people"></i> Cadastro de Eleitores
+      </a>
+      <a href="{{ url_for('territorio.index') }}"
+        class="nav-link {% if request.endpoint and request.endpoint.startswith('territorio') %}active{% endif %}">
+        <i class="bi bi-geo-alt"></i> Territórios e Bairros
+      </a>
+      <a href="{{ url_for('territorio.mapa') }}" class="nav-link">
+        <i class="bi bi-map"></i> Mapa Eleitoral
+      </a>
+
+      <div class="nav-section-title">Comunicação</div>
+      <a href="{{ url_for('comunicacao.nova') }}"
+        class="nav-link {% if request.endpoint == 'comunicacao.nova' %}active{% endif %}">
+        <i class="bi bi-send"></i> Enviar Mensagem
+      </a>
+      <a href="{{ url_for('comunicacao.index') }}"
+        class="nav-link {% if request.endpoint == 'comunicacao.index' %}active{% endif %}">
+        <i class="bi bi-chat-square-text"></i> Histórico
+      </a>
+      {% endif %}
+
+      <div class="nav-section-title">Organização</div>
+      <a href="{{ url_for('agenda.index') }}"
+        class="nav-link {% if request.endpoint and request.endpoint.startswith('agenda') %}active{% endif %}">
+        <i class="bi bi-calendar3"></i> Agenda
+      </a>
+      {% if not current_user.is_eleitor() %}
+      <a href="{{ url_for('acoes.index') }}"
+        class="nav-link {% if request.endpoint and request.endpoint.startswith('acoes') %}active{% endif %}">
+        <i class="bi bi-clipboard-check"></i> Registro de Ações
+      </a>
+      {% endif %}
+
+      {% if current_user.is_admin() %}
+      <div class="nav-section-title">Sistema</div>
+      <a href="{{ url_for('admin.index') }}"
+        class="nav-link {% if request.endpoint and request.endpoint.startswith('admin') %}active{% endif %}">
+        <i class="bi bi-shield-check"></i> Administração
+      </a>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('auth.perfil') }}" class="nav-link">
+        <i class="bi bi-person-circle"></i>
+        <span>{{ current_user.nome.split()[0] }}</span>
+        <small class="ms-auto badge bg-secondary opacity-75">
+          {% if current_user.perfil == 'cabo_eleitoral' %}Cabo Eleitoral
+          {% elif current_user.perfil == 'lideranca' %}Liderança
+          {% elif current_user.perfil == 'gestor' %}Master/Gestor
+          {% else %}{{ current_user.perfil|title }}{% endif %}
+        </small>
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger">
+        <i class="bi bi-box-arrow-right"></i> Sair
+      </a>
+    </div>
+  </aside>
+  {% endif %}
+
+  <!-- Main -->
+  <div class="main-wrapper {% if not current_user.is_authenticated %}ms-0{% endif %}">
+
+    {% if current_user.is_authenticated %}
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" onclick="toggleSidebar()">
+          <i class="bi bi-list fs-5"></i>
+        </button>
+        <span class="page-title">{% block page_title %}{% endblock %}</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <a href="{{ url_for('eleitores.novo') }}" class="btn btn-psdb btn-sm">
+          <i class="bi bi-plus-lg"></i> Novo Eleitor
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    <main class="main-content">
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show mb-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('mainSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('show');
+      overlay.classList.toggle('show');
+    }
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

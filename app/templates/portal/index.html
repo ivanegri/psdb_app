@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Meu Portal{% endblock %}
+{% block page_title %}<i class="bi bi-house-door me-2 text-primary"></i>Meu Portal{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <!-- Welcome card -->
+    <div class="col-12">
+        <div class="card bg-primary text-white" style="border-radius:16px;">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h4 class="fw-bold mb-1">Olá, {{ eleitor.nome if eleitor else current_user.nome }}!</h4>
+                    <p class="mb-0 opacity-75">Bem-vindo(a) ao seu portal exclusivo do PSDB Jundiaí.</p>
+                </div>
+                <div class="d-none d-md-block">
+                    <i class="bi bi-person-badge fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="col-md-4">
+        <a href="{{ url_for('portal.meus_dados') }}" class="text-decoration-none">
+            <div class="card h-100 text-center hover-scale">
+                <div class="card-body py-5">
+                    <i class="bi bi-person-lines-fill mb-3 d-block text-primary" style="font-size: 2.5rem;"></i>
+                    <h5 class="fw-bold text-dark mb-0">Meus Dados</h5>
+                    <p class="text-muted small mt-2 mb-0">Mantenha seu contato e endereço atualizados</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a href="{{ url_for('agenda.index') }}" class="text-decoration-none">
+            <div class="card h-100 text-center hover-scale">
+                <div class="card-body py-5">
+                    <i class="bi bi-calendar-check mb-3 d-block text-success" style="font-size: 2.5rem;"></i>
+                    <h5 class="fw-bold text-dark mb-0">Agenda e Eventos</h5>
+                    <p class="text-muted small mt-2 mb-0">Veja próximos eventos e confirme presença</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a href="{{ url_for('portal.mensagem') }}" class="text-decoration-none">
+            <div class="card h-100 text-center hover-scale">
+                <div class="card-body py-5">
+                    <i class="bi bi-chat-dots mb-3 d-block text-warning" style="font-size: 2.5rem;"></i>
+                    <h5 class="fw-bold text-dark mb-0">Fale Conosco</h5>
+                    <p class="text-muted small mt-2 mb-0">Mande uma mensagem ou sugestão</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Upcoming Events Preview -->
+    <div class="col-12 mt-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-calendar-event me-2"></i>Eventos em Breve</h5>
+        {% if eventos %}
+        <div class="row g-3">
+            {% for ev in eventos %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100" style="border-left: 5px solid {{ ev.cor }};">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-1">{{ ev.titulo }}</h6>
+                        <small class="text-muted d-block mb-2">
+                            <i class="bi bi-clock me-1"></i> {{ ev.data_inicio.strftime('%d/%m/%Y às %H:%M') }}
+                        </small>
+                        <a href="{{ url_for('agenda.detalhe', id=ev.id) }}"
+                            class="btn btn-sm btn-outline-primary mt-2">Detalhes</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body text-center text-muted py-4">
+                Não há próximos eventos cadastrados na agenda no momento.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<style>
+    .hover-scale {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .hover-scale:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Histórico de Comunicações{% endblock %}
+{% block page_title %}<i class="bi bi-chat-square-dots me-2 text-primary"></i>Histórico de Comunicações{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('comunicacao.index') }}"
+                class="btn btn-sm {% if not canal %}btn-psdb{% else %}btn-light{% endif %}">Todos</a>
+            <a href="{{ url_for('comunicacao.index', canal='whatsapp') }}"
+                class="btn btn-sm {% if canal=='whatsapp' %}btn-success{% else %}btn-light{% endif %}">
+                <i class="bi bi-whatsapp"></i> WhatsApp
+            </a>
+            <a href="{{ url_for('comunicacao.index', canal='email') }}"
+                class="btn btn-sm {% if canal=='email' %}btn-primary{% else %}btn-light{% endif %}">
+                <i class="bi bi-envelope"></i> E-mail
+            </a>
+        </div>
+        <a href="{{ url_for('comunicacao.nova') }}" class="btn btn-sm btn-psdb">
+            <i class="bi bi-plus-lg me-1"></i>Nova Mensagem
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if comunicacoes.items %}
+        <table class="table table-modern mb-0">
+            <thead>
+                <tr>
+                    <th>Canal</th>
+                    <th>Destinatário</th>
+                    <th>Assunto</th>
+                    <th>Status</th>
+                    <th>Por</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in comunicacoes.items %}
+                <tr>
+                    <td>
+                        {% if c.canal == 'whatsapp' %}
+                        <span class="badge" style="background:#E8F5E9;color:#2E7D32;"><i class="bi bi-whatsapp"></i>
+                            WhatsApp</span>
+                        {% else %}
+                        <span class="badge" style="background:#E3F2FD;color:#1565C0;"><i class="bi bi-envelope"></i>
+                            E-mail</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if c.eleitor %}
+                        <a href="{{ url_for('eleitores.detalhe', id=c.eleitor.id) }}" style="color:#005BB5;">{{
+                            c.eleitor.nome }}</a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td
+                        style="font-size:13px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                        {{ c.assunto or '(sem assunto)' }}</td>
+                    <td>
+                        <span
+                            class="badge {% if c.status == 'enviado' %}bg-success{% elif c.status == 'erro' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                            {{ c.status|title }}
+                        </span>
+                    </td>
+                    <td style="font-size:12px;">{{ c.enviado_por.nome.split()[0] if c.enviado_por else '—' }}</td>
+                    <td style="font-size:12px;color:#6B7FA3;">{{ c.enviado_em.strftime('%d/%m/%y %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if comunicacoes.pages > 1 %}
+        <div class="d-flex justify-content-center py-3">
+            <nav>
+                <ul class="pagination mb-0">
+                    {% if comunicacoes.has_prev %}<li class="page-item"><a class="page-link"
+                            href="{{ url_for('comunicacao.index', page=comunicacoes.prev_num, canal=canal) }}">‹</a>
+                    </li>{% endif %}
+                    {% for num in comunicacoes.iter_pages() %}
+                    {% if num %}<li class="page-item {% if num==comunicacoes.page %}active{% endif %}"><a
+                            class="page-link" href="{{ url_for('comunicacao.index', page=num, canal=canal) }}">{{ num
+                            }}</a></li>
+                    {% else %}<li class="page-item disabled"><span class="page-link">…</span></li>{% endif %}
+                    {% endfor %}
+                    {% if comunicacoes.has_next %}<li class="page-item"><a class="page-link"
+                            href="{{ url_for('comunicacao.index', page=comunicacoes.next_num, canal=canal) }}">›</a>
+                    </li>{% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-chat-square-x" style="font-size:48px;color:#C5D5E8;"></i>
+            <div class="mt-3" style="font-size:13px;">Nenhuma mensagem enviada ainda. <a
+                    href="{{ url_for('comunicacao.nova') }}">Enviar primeira mensagem.</a></div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Administração{% endblock %}
+{% block page_title %}<i class="bi bi-shield-check me-2 text-primary"></i>Administração{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card text-center">
+            <div class="kpi-value">{{ stats.usuarios }}</div>
+            <div class="kpi-label">Usuários do Sistema</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card text-center">
+            <div class="kpi-value">{{ stats.eleitores }}</div>
+            <div class="kpi-label">Eleitores Cadastrados</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card text-center">
+            <div class="kpi-value">{{ stats.comunicacoes }}</div>
+            <div class="kpi-label">Mensagens Enviadas</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-12">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-people-fill me-2"></i>Gestão de Usuários</div>
+            <div class="card-body">
+                <p class="text-muted" style="font-size:13.5px;">Adicione, edite ou remova usuários do sistema. Defina
+                    perfis de acesso.</p>
+                <a href="{{ url_for('admin.usuarios') }}" class="btn btn-psdb">
+                    <i class="bi bi-arrow-right me-1"></i>Gerenciar Usuários
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
