@@ -22,6 +22,7 @@
         <div class="card">
             <div class="card-body p-0">
                 {% if acoes.items %}
+                <div class="table-responsive">
                 <table class="table table-modern mb-0">
                     <thead>
                         <tr>
@@ -67,6 +68,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </div>
 
                 {% if acoes.pages > 1 %}
                 <div class="d-flex justify-content-center py-3">

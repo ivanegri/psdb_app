@@ -90,6 +90,7 @@
             <div class="card-body p-0">
                 {% set partic = evento.participantes.all() %}
                 {% if partic %}
+                <div class="table-responsive">
                 <table class="table table-modern mb-0">
                     <thead>
                         <tr>
@@ -109,6 +110,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </div>
                 {% else %}
                 <div class="text-center text-muted py-4" style="font-size:13px;">
                     Nenhum participante adicionado ainda.

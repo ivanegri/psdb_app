@@ -23,6 +23,7 @@
     </div>
     <div class="card-body p-0">
         {% if comunicacoes.items %}
+        <div class="table-responsive">
         <table class="table table-modern mb-0">
             <thead>
                 <tr>
@@ -67,6 +68,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
 
         {% if comunicacoes.pages > 1 %}
         <div class="d-flex justify-content-center py-3">

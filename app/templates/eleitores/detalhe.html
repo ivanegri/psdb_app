@@ -112,6 +112,7 @@
             </div>
             <div class="card-body p-0">
                 {% if acoes %}
+                <div class="table-responsive">
                 <table class="table table-modern mb-0">
                     <thead>
                         <tr>
@@ -136,6 +137,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </div>
                 {% else %}
                 <div class="text-center text-muted py-4" style="font-size:13px;">Nenhuma ação registrada ainda.</div>
                 {% endif %}
@@ -146,6 +148,7 @@
             <div class="card-header"><i class="bi bi-chat-square-dots me-2"></i>Histórico de Comunicações</div>
             <div class="card-body p-0">
                 {% if comunicacoes %}
+                <div class="table-responsive">
                 <table class="table table-modern mb-0">
                     <thead>
                         <tr>
@@ -181,6 +184,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </div>
                 {% else %}
                 <div class="text-center text-muted py-4" style="font-size:13px;">Nenhuma mensagem enviada ainda.</div>
                 {% endif %}
